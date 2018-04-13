@@ -30,7 +30,7 @@ function preload() {
 
     game.load.spritesheet('player', './assets/sheet_hero_idle.png', 64, 64);
 
-    game.load.spritesheet('wall', './assets/roguelike-cave-pack/Spritesheet/roguelikeDungeon_transparent.png', 16, 16);
+    game.load.spritesheet('wall', './assets/roguelike-cave-pack/Spritesheet/roguelikeDungeon_transparent.png', 16, 16, margin = 1,);
 }
 
 function create() {
@@ -60,6 +60,7 @@ function create() {
 
     //Enable player's physics
     game.physics.arcade.enable(player);
+
     //Move player toward taps
     game.input.onDown.add( move, this );
 
@@ -71,7 +72,8 @@ function create() {
     obstacles.enableBody = true;
 
     //create wall in obstacles group
-    var wall = obstacles.create( game.world._width, game.world._height, 'wall' );
+    var wall = obstacles.create( 10, 10, 'wall' );
+    wall.body.immovable = true;
 }
     
 function update() {
