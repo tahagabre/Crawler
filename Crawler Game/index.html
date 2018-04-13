@@ -22,13 +22,87 @@ var game = new Phaser.Game(800, 600, Phaser.AUTO, '', {
 
 var player;
 
-//Player Constants
+function preload() {
+    game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+    game.scale.pageAlignHorizontally = true;
+    game.scale.pageAlignVertically = true;
+    game.stage.backgroundColor = '#eee';
+
+    game.load.spritesheet('player', './assets/sheet_hero_idle.png', 64, 64);
+
+    game.load.spritesheet('wall', './assets/roguelike-cave-pack/Spritesheet/roguelikeDungeon_transparent.png', 16, 16);
+}
+
+function create() {
+
+    //Player Controller
+    //===========================
+    //Enable Physics on the world
+    game.physics.startSystem( Phaser.Physics.ARCADE );
+    //Enable input
+    game.inputEnabled = true;
+
+    //Create instance of player
+    //player = new Player("Wok");
+    //wall = new Wall(100, 100);
+
+    //Create sprite, animation and play
+    player = game.add.sprite(game.world.centerX, game.world.centerY, 'player');
+    
+    //Set the center of the player as reference to position
+    player.anchor.x = 0.5;
+    player.anchor.y = 0.5;
+    
+    var idle = player.animations.add( 'idle' );
+    player.animations.play('idle', 10, true);
+
+    game.camera.follow( player );
+
+    //Enable player's physics
+    game.physics.arcade.enable(player);
+    //Move player toward taps
+    game.input.onDown.add( move, this );
+
+    //Obstacle Controller
+    //==============================
+
+    //Create group for things that are unpassable
+    obstacles = game.add.group();
+    obstacles.enableBody = true;
+
+    //create wall in obstacles group
+    var wall = obstacles.create( game.world._width, game.world._height, 'wall' );
+}
+    
+function update() {
+    var hitObstacle = game.physics.arcade.collide(player, obstacles); //needs to be tested
+    if ( hitObstacle ){
+        console.log( "Hit!" );
+    }
+
+}
+
+function move(){
+    console.log("Player Position is \n{ ", player.body.position.x, ", ", player.body.position.y, " }");
+    game.camera.follow();
+    game.physics.arcade.moveToPointer( player, 500 );
+    //console.log("You tapped \n{ ", game.input.x, ", ", game.input.y, " }");
+    if ( player.body.position.x == game.input.activePointer.screenX ) {//&& player.body.position.y == game.input.pointer.y ){
+        player.body.velocity.x = 0;
+        player.body.velocity.y = 0;
+        console.log("Reset!");
+    }
+}
+
+/*//Player Constants
 PLAYER_HEALTH = 100;
 PLAYER_ENERGY = 0;
+PLAYER_SPEED = 50;
 
 Player = function( characterSelected ) {
     this.health = PLAYER_HEALTH;
     this.energy = PLAYER_ENERGY;
+    this.speed = PLAYER_SPEED;
     this.sprite = "./assets/ball.png";
     game.physics.arcade.enable( this );
     this.inputEnabled = true;
@@ -37,10 +111,9 @@ Player = function( characterSelected ) {
 
 Player.prototype.constructor = Player;
 
-Player.prototype.walk = function (){
-    if ( game.pointer.isDown) {
-        this.body.velocity.x = game.pointer.position.x;
-    }
+Player.prototype.move = function (){
+    game.camera.follow();
+    game.physics.arcade.moveToPointer( this, 500 );
 };
 
 Enemy = function( enemyType ) {
@@ -83,47 +156,7 @@ Collectable = function( collectType ) {
 };
 
 Collectable.prototype.constructor = Collectable;
-
-function preload() {
-    game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-    game.scale.pageAlignHorizontally = true;
-    game.scale.pageAlignVertically = true;
-    game.stage.backgroundColor = '#eee';
-
-    game.load.spritesheet('player', './assets/sheet_hero_idle.png', 64, 64);
-}
-
-function create() {
-    //Enable Physics on the world
-    game.physics.startSystem( Phaser.Physics.ARCADE );
-
-    //Create instance of player
-    player = new Player("Wok");
-    wall = new Wall(100, 100);
-
-    //Create sprite, animation and play
-    player = game.add.sprite(game.world.centerX, game.world.centerY, 'player');
-    var idle = player.animations.add( 'idle' );
-    player.animations.play('idle', 10, true);
-
-    //Create group for things that are unpassable
-    obstacles = game.add.group();
-    obstacles.enableBody = true;
-
-    game.input.touch.enable = true;
-    //obstacles.create()
-}
-    
-function update() {
-    var hitObstacle = game.physics.arcade.collide(player, obstacles); //needs to be tested
-    
-    //player.body.velocity.x = 0;
-
-    if ( false ) { //constantly alerts, shouldn't
-        //player.body.velocity.x = game.input.position.x;
-        console.log("read input");
-    }
-}
+*/
     </script>
 </body>
 </html>
