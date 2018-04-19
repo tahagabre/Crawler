@@ -6,9 +6,10 @@ var game = new Phaser.Game(800, 600, Phaser.AUTO, '', {
     preload: preload, 
     create: create, 
     update: update
-});   
+});
 
 var player;
+var obstacles;
 
 function preload() {
     game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
@@ -56,7 +57,7 @@ function create() {
     //==============================
 
     //Create group for things that are unpassable
-    var obstacles = game.add.group();
+    obstacles = game.add.group();
     obstacles.enableBody = true;
 
     //create wall in obstacles group
