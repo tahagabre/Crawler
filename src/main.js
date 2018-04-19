@@ -1,19 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <title>Crawler</title>
-    <script src="lib/phaser.2.6.1.min.js" type="text/javascript"></script>
-    <script src="lib/box2d-plugin-full.min.js" type="text/javascript"></script>
-    <style type="text/css">
-        body {
-            margin: 0;
-        }
-    </style>
-</head>
-<body>
-    <!--<script src="app.js" type="text/javascript"></script> -->
-    <script type="text/javascript">
+import 'pixi'
+import 'p2'
+import Phaser from 'phaser'
+
 var game = new Phaser.Game(800, 600, Phaser.AUTO, '', {
     preload: preload, 
     create: create, 
@@ -28,9 +16,9 @@ function preload() {
     game.scale.pageAlignVertically = true;
     game.stage.backgroundColor = '#eee';
 
-    game.load.spritesheet('player', './assets/sheet_hero_idle.png', 64, 64);
+    game.load.spritesheet('player', '../assets/sheet_hero_idle.png', 64, 64);
 
-    game.load.spritesheet('wall', './assets/roguelike-cave-pack/Spritesheet/roguelikeDungeon_transparent.png', 16, 16, margin = 1,);
+    game.load.spritesheet('wall', '../assets/roguelike-cave-pack/Spritesheet/roguelikeDungeon_transparent.png', 16, 16);
 }
 
 function create() {
@@ -68,7 +56,7 @@ function create() {
     //==============================
 
     //Create group for things that are unpassable
-    obstacles = game.add.group();
+    var obstacles = game.add.group();
     obstacles.enableBody = true;
 
     //create wall in obstacles group
@@ -95,70 +83,3 @@ function move(){
         console.log("Reset!");
     }
 }
-
-/*//Player Constants
-PLAYER_HEALTH = 100;
-PLAYER_ENERGY = 0;
-PLAYER_SPEED = 50;
-
-Player = function( characterSelected ) {
-    this.health = PLAYER_HEALTH;
-    this.energy = PLAYER_ENERGY;
-    this.speed = PLAYER_SPEED;
-    this.sprite = "./assets/ball.png";
-    game.physics.arcade.enable( this );
-    this.inputEnabled = true;
-    //this.body.collideWorldBounds = true;
-};
-
-Player.prototype.constructor = Player;
-
-Player.prototype.move = function (){
-    game.camera.follow();
-    game.physics.arcade.moveToPointer( this, 500 );
-};
-
-Enemy = function( enemyType ) {
-    this.health = PLAYER_HEALTH / 2; 
-};
-
-Enemy.prototype.constructor = Enemy;
-
-Wall = function( xPosition, yPosition ){
-    this.x = xPosition;
-    this.y = yPosition;
-    this.spriteSrc = "./assets/dude.png";
-};
-
-Wall.prototype.constructor = Wall;
-
-//Room Constants
-ROOM_WIDTH = 800;
-ROOM_LENGTH = 800;
-
-Room = function( isBossRoom ) {
-    this.dimensions = {
-        x: ROOM_WIDTH,
-        y: ROOM_LENGTH
-    };
-    this.hasEnemies = true;
-    this.isLocked = false;
-    this.hasTreasure = false;
-    this.isBossRoom = isBossRoom;
-};
-
-Room.prototype.constructor = Room;
-
-Collectable = function( collectType ) {
-    this.position = {
-        x: null,
-        y: null
-    };
-    this.collectType = collectType;    
-};
-
-Collectable.prototype.constructor = Collectable;
-*/
-    </script>
-</body>
-</html>
