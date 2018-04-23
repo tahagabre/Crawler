@@ -2,7 +2,9 @@ import 'pixi'
 import 'p2'
 import Phaser from 'phaser'
 
-var game = new Phaser.Game(800, 600, Phaser.AUTO, '', {
+import BootState from './states/Boot'
+
+var game = new Phaser.Game(600, 600, Phaser.AUTO, '', {
     preload: preload, 
     create: create, 
     update: update
@@ -12,18 +14,19 @@ var player;
 var obstacles;
 
 function preload() {
-    game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+    /*game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
     game.scale.pageAlignHorizontally = true;
     game.scale.pageAlignVertically = true;
-    game.stage.backgroundColor = '#eee';
+    game.stage.backgroundColor = '#eee';*/
 
-    game.load.spritesheet('player', '../assets/sheet_hero_idle.png', 64, 64);
+    /*game.load.spritesheet('player', '../assets/sheet_hero_idle.png', 64, 64);
 
-    game.load.spritesheet('wall', '../assets/roguelike-cave-pack/Spritesheet/roguelikeDungeon_transparent.png', 16, 16);
+    game.load.spritesheet('wall', '../assets/roguelike-cave-pack/Spritesheet/roguelikeDungeon_transparent.png', 16, 16);*/
 }
 
 function create() {
 
+	console.log( game.world.bounds );
     //Player Controller
     //===========================
     //Enable Physics on the world
@@ -37,7 +40,8 @@ function create() {
 
     //Create sprite, animation and play
     player = game.add.sprite(game.world.centerX, game.world.centerY, 'player');
-    
+    player.collideWorldBounds = true;
+
     //Set the center of the player as reference to position
     player.anchor.x = 0.5;
     player.anchor.y = 0.5;
@@ -67,20 +71,22 @@ function create() {
     
 function update() {
     var hitObstacle = game.physics.arcade.collide(player, obstacles); //needs to be tested
-    if ( hitObstacle ){
+    if ( hitObstacle ) {
         console.log( "Hit!" );
     }
 
-}
-
-function move(){
-    console.log("Player Position is \n{ ", player.body.position.x, ", ", player.body.position.y, " }");
-    game.camera.follow();
-    game.physics.arcade.moveToPointer( player, 500 );
-    //console.log("You tapped \n{ ", game.input.x, ", ", game.input.y, " }");
-    if ( player.body.position.x == game.input.activePointer.screenX ) {//&& player.body.position.y == game.input.pointer.y ){
-        player.body.velocity.x = 0;
-        player.body.velocity.y = 0;
-        console.log("Reset!");
+    var hitBounds = game.physics.arcade.collide(player, game.world.bounds);
+    if ( hitBounds ) {
+    	console.log( "Bounds!" )
     }
+
+}
+//perhaps change acceleration to -.25?
+function move(){
+    //console.log("Player Position is \n{ ", player.body.position.x, ", ", player.body.position.y, " }");
+    game.camera.follow();
+	game.physics.arcade.moveToPointer( player, 500 );
+	//console.log("Player acceleration is \n{ ", player.body.acceleration.x, ", ", player.body.acceleration.y, " }")
+	//console.log("Player velocity is \n{ ", player.body.velocity.x, ", ", player.body.velocity.y, " }")
+	console.log(game.input.x, game.input.y);
 }
