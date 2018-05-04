@@ -1,61 +1,55 @@
+//import PIXI from "expose-loader?PIXI!phaser-ce/build/custom/pixi.js";
+//import Phaser from "expose-loader?Phaser!phaser-ce/build/custom/phaser-split.js";
+
+//import BootState from "imports-loader?this=>window!./states/Boot.js"
+//import Player from "imports-loader?this=>window!./controllers/Player.js"
+
 import 'pixi'
-import 'p2'
 import Phaser from 'phaser'
 
-import BootState from './states/Boot'
+//import BootState from './states/Boot.js'
+import Player from './controllers/Player.js'
 
-var game = new Phaser.Game(600, 600, Phaser.AUTO, '', {
+var game = new Phaser.Game(1280, 703, Phaser.AUTO, '', {
     preload: preload, 
     create: create, 
     update: update
 });
 
-var player;
 var obstacles;
+var player;
 
 function preload() {
-    /*game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-    game.scale.pageAlignHorizontally = true;
-    game.scale.pageAlignVertically = true;
-    game.stage.backgroundColor = '#eee';*/
+    this.stage.backgroundColor = '#eee',
+    this.scale.pageAlignHorizontally = true,
+    this.scale.pageAlignVertically = true,
+    this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL,
 
-    /*game.load.spritesheet('player', '../assets/sheet_hero_idle.png', 64, 64);
-
-    game.load.spritesheet('wall', '../assets/roguelike-cave-pack/Spritesheet/roguelikeDungeon_transparent.png', 16, 16);*/
+    game.load.spritesheet( 'idle', '../../assets/sheet_hero_idle.png', 64, 64 ),
+    game.load.spritesheet( 'wall', '../../assets/roguelike-cave-pack/Spritesheet/roguelikeDungeon_transparent.png', 16, 16 )
 }
 
 function create() {
-
-	console.log( game.world.bounds );
     //Player Controller
     //===========================
     //Enable Physics on the world
     game.physics.startSystem( Phaser.Physics.ARCADE );
+    game.physics.arcade.setBoundsToWorld();
+
     //Enable input
     game.inputEnabled = true;
-
-    //Create instance of player
-    //player = new Player("Wok");
-    //wall = new Wall(100, 100);
-
-    //Create sprite, animation and play
-    player = game.add.sprite(game.world.centerX, game.world.centerY, 'player');
-    player.collideWorldBounds = true;
-
-    //Set the center of the player as reference to position
-    player.anchor.x = 0.5;
-    player.anchor.y = 0.5;
     
-    var idle = player.animations.add( 'idle' );
-    player.animations.play('idle', 10, true);
+    //create player
+    player = new Player( game, game.world.centerX, game.world.centerY, 'idle' );
+    game.add.existing( player ); //<--WILL NOT WORK WITHOUT
+    game.physics.arcade.enable( player );
+    
+    console.log("player is\t", player); //TEST
+    console.log("player body is\t", player.body); //TEST
+    console.log("player body is enabled\t", player.body.enable); //TEST
 
     game.camera.follow( player );
-
-    //Enable player's physics
-    game.physics.arcade.enable(player);
-
-    //Move player toward taps
-    game.input.onDown.add( move, this );
+    game.input.onDown.add( player.move, this );
 
     //Obstacle Controller
     //==============================
@@ -67,26 +61,18 @@ function create() {
     //create wall in obstacles group
     var wall = obstacles.create( 10, 10, 'wall' );
     wall.body.immovable = true;
+    
 }
     
 function update() {
-    var hitObstacle = game.physics.arcade.collide(player, obstacles); //needs to be tested
+    /*var hitObstacle = game.physics.arcade.collide( player, obstacles ); //needs to be tested
     if ( hitObstacle ) {
         console.log( "Hit!" );
     }
 
-    var hitBounds = game.physics.arcade.collide(player, game.world.bounds);
+    var hitBounds = game.physics.arcade.collide( player, game.world.bounds );
     if ( hitBounds ) {
     	console.log( "Bounds!" )
-    }
+    }*/
 
-}
-//perhaps change acceleration to -.25?
-function move(){
-    //console.log("Player Position is \n{ ", player.body.position.x, ", ", player.body.position.y, " }");
-    game.camera.follow();
-	game.physics.arcade.moveToPointer( player, 500 );
-	//console.log("Player acceleration is \n{ ", player.body.acceleration.x, ", ", player.body.acceleration.y, " }")
-	//console.log("Player velocity is \n{ ", player.body.velocity.x, ", ", player.body.velocity.y, " }")
-	console.log(game.input.x, game.input.y);
 }
