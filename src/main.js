@@ -3,17 +3,16 @@ import Phaser from 'phaser'
 
 import Player from './controllers/Player.js'
 import Enemy from './controllers/Enemy.js'
-//import 'hammer-timejs';
+import Gesture from './managers/gesture.js'
 
 var game = new Phaser.Game( 1300, 1000, Phaser.AUTO, '', {
     preload: preload, 
     create: create, 
     update: update,
     render: render
-});
+} );
 
 var obstacles,
-    player,
     map,
     layer,
     LERP = 0.1;
@@ -24,7 +23,7 @@ function preload() {
     //game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
 
     //enemy
-    game.load.image( 'enemy', '../../assets/ball.png' );
+    game.load.spritesheet( 'enemy', '../../assets/sheet_bat_fly.png', 32, 32 );
 
     //BG
     game.load.tilemap( 'test', '../../assets/maps/test.json', null, Phaser.Tilemap.TILED_JSON );
@@ -47,22 +46,13 @@ function create() {
     //Enable game input
     game.inputEnabled = true;
 
-    console.log( this.game.parent );
-
-    /*$( this.game.parent ).hammer().on( 'tap', function( ev ) {
-        console.log( ev );
-    })*/
-
-    /*this.game.gestures = new Gesture( this.game );
-    this.gestures.onTap.add( this.tapped, this );
-    this.gestures.onHold.add( this.holded, this );
-    this.gestures.onSwipe.add( this.swiped, this );*/
-
     //create player
     this.game.player = new Player( game, game.rnd.integerInRange( 0, this.game.width ), game.rnd.integerInRange( 0, this.game.height ),/*this.world.centerX - 200, this.world.centerY + 200,*/ 'idle' ); 
 
+    //create enemy group, set group children = Enemy
     this.game.enemies = game.add.group();
     this.game.enemies.classType = Enemy;
+
     //COME BACK, push for each
     for ( var i = 0; i <= 2; i++ ) {
         if ( this.game.player.x > this.game.width / 2 && this.game.player.y > this.game.height / 2 ) {
@@ -83,6 +73,7 @@ function create() {
     }
     
     //follow player
+    //STILL BUGGED
     this.game.camera.follow( this.game.player );
     game.renderer.renderSession.roundPixels = true;
 
@@ -98,21 +89,33 @@ function create() {
     var wall = obstacles.create( 0, 0, 'wall' );
     wall.body.immovable = true;
     */
+
+    //Add and enable touch gestures
+    this.game.gestures = new Gesture( this.game );
+    //this.game.gestures.onHold.add( this.held(), this );
+    //this.game.gestures.onSwipe.add( this.game.player.swipeAttack, this.game.player );
 }
     
 function update() {
 
+    //this.game.player.move(),
     this.game.player.stopSliding(),
 
     //not functional, need some way to automate this
-    this.game.enemies.children[ 0 ].move(),
-    this.game.enemies.children[ 1 ].move(),
-    this.game.enemies.children[ 2 ].move(),
+    //this.game.enemies.children[ 0 ].move(),
+    //this.game.enemies.children[ 1 ].move(),
+    //this.game.enemies.children[ 2 ].move(),
+
+    this.game.player.updateProximity();
+    this.game.player.updateDoubleTapCircle();
+
+    this.game.player.listenProximity(),
+    this.game.player.listenDoubleTap(),
 
     this.game.physics.arcade.collide( this.game.player, this.game.enemies ),
-    this.game.player.checkDeath()
-/*
-    this.game.gestures.update()*/
+    this.game.player.checkDeath(),
+
+    this.game.gestures.update()
 }
 
 //For debug
