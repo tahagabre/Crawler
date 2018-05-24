@@ -17,15 +17,16 @@ export default function Player( game, x, y, spriteKey ) {
 	this.stunned = false,
 	this.immune = false,
 	this.alive = true,
+	this.tween = null,
 	this.swipeDistance = 50;
 	this.attackEnabled = true,
 	this.doubleTapEnabled = true,
 	this.proxDiameter = 400,
-	this.doubleTapDiameter = 50,
+	this.doubleTapDiameter = 700,
 	this.proximity = new Phaser.Circle( this.x, this.y, this.proxDiameter ),
 	this.doubleTapCircle = new Phaser.Circle( this.x, this.y, this.doubleTapDiameter ),
+	this.explosionCircle = new Phaser.Circle( this.x, this.y, this.doubleTapDiameter ),
 	this.isSwiping = false,
-	this.explosionCircle = this.doubleTapCircle,
 	this.animations.add( spriteKey ),
 	this.animations.play( spriteKey, 10, true ),
 	game.add.existing( this )
@@ -50,9 +51,8 @@ Player.prototype.stopSliding = function() { //Update function
     }
 },
 
-Player.prototype.knockBack = function () {
+Player.prototype.knockBack = function ( /*maybe we can use collider, have collider point minus enemy point?*/ ) {
 	this.speed = -this.speed;
-	console.log( this.speed );
 	this.resetStun();
 },
 
@@ -68,7 +68,6 @@ Player.prototype.resetAttack = function () {
 //need an input disabled feature
 Player.prototype.resetStun = function () {
 	this.speed = -this.speed;
-	console.log( this.speed );
 	//this.game.time.events.add( 800, function() { this.speed = -this.speed }, this );
 },
 
@@ -86,18 +85,9 @@ Player.prototype.takeDamage = function( damage ) {
 	}
 },
 
+//useful for blind enemies or alerts
 Player.prototype.listenProximity = function() {
 
-},
-
-Player.prototype.listenDoubleTap = function() {
-	if ( this.doubleTapEnabled && this.game.input.activePointer.msSinceLastClick < this.game.input.doubleTapRate && this.proximity.contains( this.game.input.activePointer.x, this.game.input.activePointer.y ) ) {
-		console.log( "double Tap" );
-		this.moveEnabled = false;
-		this.bombAttack();
-		this.doubleTapEnabled = false;
-	}
-	this.resetDoubleTap();
 },
 
 Player.prototype.resetDoubleTap = function() {
@@ -113,8 +103,34 @@ Player.prototype.updateDoubleTapCircle = function() {
 	this.doubleTapCircle.setTo( this.x, this.y, this.doubleTapDiameter );
 },
 
-/*Player.prototype.swipeAttack = function () {
-	console.log( 'swiped!');
+//Gesture Callbacks
+Player.prototype.swiped = function() {
+	console.log( 'swiped', this )
+	//this.swipeAttack();
+},
+
+Player.prototype.held = function() {
+	console.log( 'held' )
+},
+
+Player.prototype.doubleTapped = function () {
+	if ( this.doubleTapCircle.contains( this.game.input.activePointer.x, this.game.input.activePointer.y ) ) {
+		console.log( "double tap dispatched" )
+		this.bombAttack();
+	}
+},
+
+//Gesture callback game implementation
+Player.prototype.bombAttack = function () {
+	for ( var i = 0; i < this.game.enemies.children.length; i++ ) {
+		if ( this.doubleTapCircle.contains( this.game.enemies.children[ i ].x, this.game.enemies.children[ i ].y ) ) {
+			this.game.enemies.children[ i ].speed *= -.5;
+		}
+	}
+},
+
+Player.prototype.swipeAttack = function () {
+	/*console.log( 'swiped!' );
 	this.isSwiping = true;
 	this.moveEnabled = false;
 	this.speed = 800
@@ -146,40 +162,14 @@ Player.prototype.updateDoubleTapCircle = function() {
 			this.speed = 200;
 			//this.game.enemy.knockBack()
 		}
-	}
-},*/
+	}*/
+
+	console.log( this.body )
+},
 
 /*Player.prototype.resetSpeed = function() {
 	this.speed = 200;
 },*/
-
-Player.prototype.bombAttack = function () {
-
-	for ( var i = 0; i < this.game.enemies.children.length; i++ ) {
-		if ( this.explosionCircle.contains( this.game.enemies.children[ i ].x, this.game.enemies.children[ i ].y ) ) {
-			this.game.enemies.children[ i ].x += 100
-			/*if ( this.game.enemies.children[ i ].x > this.x && this.game.enemies.children[ i ] > this.y ) {
-				this.game.enemies.children[ i ].x += 100,
-				this.game.enemies.children[ i ].y += 100
-			}
-
-			else if ( this.game.enemies.children[ i ].x < this.x && this.game.enemies.children[ i ] > this.y ) {
-				this.game.enemies.children[ i ].x -= 100,
-				this.game.enemies.children[ i ].y += 100
-			}
-
-			else if ( this.game.enemies.children[ i ].x > this.x && this.game.enemies.children[ i ] < this.y ) {
-				this.game.enemies.children[ i ].x += 100,
-				this.game.enemies.children[ i ].y -= 100
-			}
-
-			else {
-				this.game.enemies.children[ i ].x -= 100,
-				this.game.enemies.children[ i ].y -= 100
-			}*/
-		}
-	}
-},
 
 Player.prototype.manageFacing = function() {
 	if ( this.game.input.activePointer.x < this.x ) {

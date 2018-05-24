@@ -11,6 +11,7 @@ export default function Enemy( game, x, y, spriteKey ) {
 		y: 0.5 
 	},
 	this.speed = 100,
+	this.fearSpeed = 300,
 	this.stunned = false,
 	this.attackEnabled = true,
 	this.lungeEnabled = true,
@@ -65,17 +66,17 @@ Enemy.prototype.resetLunge = function () {
 },
 
 //disabling movement is WIP, does not work here
-Enemy.prototype.knockBack = function () {
+/*Enemy.prototype.knockBack = function () {
 	//this.moveEnabled = false;
 	this.speed = -this.speed;
 	this.resetStun()
-},
+},*/
 
 //disabling movement is WIP, does not work here
-Enemy.prototype.resetStun = function() {
+/*Enemy.prototype.resetStun = function() {
 	this.speed = -this.speed;
 	//this.game.time.events.add( 2000, function() { this.moveEnabled = true }, this )
-},
+},*/
 
 Enemy.prototype.manageFacing = function() {
 	if ( this.game.player.x > this.x ) {

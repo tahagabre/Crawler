@@ -33,7 +33,7 @@ function preload() {
 function create() {
     //Background
     map = game.add.tilemap( 'test', 8 , 8 );
-    map.addTilesetImage( 'testSet', 'tiles');
+    map.addTilesetImage( 'testSet', 'tiles' );
 
     //layer = map.createLayer( 'dark bg' );
     //layer.resizeWorld();
@@ -47,11 +47,19 @@ function create() {
     game.inputEnabled = true;
 
     //create player
-    this.game.player = new Player( game, game.rnd.integerInRange( 0, this.game.width ), game.rnd.integerInRange( 0, this.game.height ),/*this.world.centerX - 200, this.world.centerY + 200,*/ 'idle' ); 
+    this.game.player = new Player( game, /*FOR TESTING: game.rnd.integerInRange( 0, this.game.width ), game.rnd.integerInRange( 0, this.game.height ),*/this.world.centerX - 200, this.world.centerY + 200, 'idle' );
+
+    //Add and enable touch gestures
+    this.game.gestures = new Gesture( this );    
+
+    this.game.gestures.onSwipe.add( this.game.player.swiped, this ),
+    this.game.gestures.onHold.add( this.game.player.held, this ),
+    this.game.gestures.onDoubleTap.add( this.game.player.doubleTapped, this.game.player ),
 
     //create enemy group, set group children = Enemy
     this.game.enemies = game.add.group();
     this.game.enemies.classType = Enemy;
+    this.game.enemies.enableBody = true;
 
     //COME BACK, push for each
     for ( var i = 0; i <= 2; i++ ) {
@@ -71,7 +79,10 @@ function create() {
             this.game.enemies.create( game.rnd.integerInRange( this.game.player.x + 200, this.game.width ), game.rnd.integerInRange( this.game.player.y + 200, this.game.height ), 'enemy' );
         }
     }
-    
+
+    //TEST for enemy w/o group    
+    //this.game.enemy = new Enemy( game, game.width / 2, game.height / 2, 'enemy' )
+
     //follow player
     //STILL BUGGED
     this.game.camera.follow( this.game.player );
@@ -83,37 +94,26 @@ function create() {
     //Create group for things that are unpassable
     obstacles = game.add.group();
     obstacles.enableBody = true;
-
-    //create wall in obstacles group
-    /*
-    var wall = obstacles.create( 0, 0, 'wall' );
-    wall.body.immovable = true;
-    */
-
-    //Add and enable touch gestures
-    this.game.gestures = new Gesture( this.game );
-    //this.game.gestures.onHold.add( this.held(), this );
-    //this.game.gestures.onSwipe.add( this.game.player.swipeAttack, this.game.player );
 }
-    
+
+function moveEnemies() {
+    for ( var i = 0; i < game.enemies.children.length; i++ ) {
+        game.enemies.children[ i ].move()
+    }
+}
+
 function update() {
 
-    //this.game.player.move(),
+    this.game.player.checkDeath(),
     this.game.player.stopSliding(),
+    moveEnemies(),
 
     //not functional, need some way to automate this
-    //this.game.enemies.children[ 0 ].move(),
-    //this.game.enemies.children[ 1 ].move(),
-    //this.game.enemies.children[ 2 ].move(),
 
     this.game.player.updateProximity();
     this.game.player.updateDoubleTapCircle();
 
-    this.game.player.listenProximity(),
-    this.game.player.listenDoubleTap(),
-
     this.game.physics.arcade.collide( this.game.player, this.game.enemies ),
-    this.game.player.checkDeath(),
 
     this.game.gestures.update()
 }

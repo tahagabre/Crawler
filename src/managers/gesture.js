@@ -5,9 +5,10 @@
 export default function Gesture( game ) {
     this.game = game;
 
+    this.taps = 0;
+
     this.swipeDispatched = false;
     this.holdDispatched = false;
-    
     this.doubleTapDispatched = false;
 
     this.isTouching = false;
@@ -21,6 +22,7 @@ export default function Gesture( game ) {
 
 }
 
+//Called each frame, constant listener
 Gesture.prototype.update = function() {
     var distance = Phaser.Point.distance( this.game.input.activePointer.position, this.game.input.activePointer.positionDown );
     var duration = this.game.input.activePointer.duration;
@@ -29,11 +31,13 @@ Gesture.prototype.update = function() {
     this.updateTouch( distance, duration );
 };
 
+//Swipe Handler
 Gesture.prototype.updateSwipe = function( distance, duration ) {
     if ( duration === -1 ) {
         this.swipeDispatched = false;
     } 
 
+    //If we don't touch the screen for too long and change the position of the input during that touch
     else if ( !this.swipeDispatched && distance > /*150*/50 && duration > 100 && duration < Gesture.TIMES.SWIPE ) {
         var positionDown = this.game.input.activePointer.positionDown;
         this.onSwipe.dispatch( this, positionDown );
@@ -42,13 +46,27 @@ Gesture.prototype.updateSwipe = function( distance, duration ) {
     }
 };
 
+//Handlers for Single Taps, Double Taps, and Holds
 Gesture.prototype.updateTouch = function( distance, duration ) {
     var positionDown = this.game.input.activePointer.positionDown;
+    var timeBetweenTaps = this.game.input.doubleTapRate - this.game.input.activePointer.msSinceLastClick;
 
     if ( duration === -1 ) {
-            if ( this.isTouching ) {
-                this.onTap.dispatch( this, positionDown );
-            }
+        //Single Tap Handler
+        //Record each tap as it happens
+        if ( this.isTouching ) {
+            this.onTap.dispatch( this, positionDown );
+            this.taps++;
+        }
+
+        //Double Tap Handler
+        //For each tap that occurs, we check to see if the player has tapped at least once before in under 300 ms
+        //If there are two taps and the time constraint is achieved, then dispatch the double tap event
+        else if ( this.taps >= 2 && ( Gesture.TIMES.DOUBLETAP - this.game.input.activePointer.msSinceLastClick > 0 ) ) {
+            this.taps = 0;
+            this.isDoubleTapping = true;
+            this.onDoubleTap.dispatch( this, positionDown );
+        }
 
         this.isTouching = false;
         this.isHolding = false;
@@ -56,6 +74,7 @@ Gesture.prototype.updateTouch = function( distance, duration ) {
 
     }
 
+    //Hold Handler
     else if ( distance < 10 ) {
         if ( duration < Gesture.TIMES.HOLD ) {
             this.isTouching = true;
@@ -76,6 +95,7 @@ Gesture.prototype.updateTouch = function( distance, duration ) {
     else {
         this.isTouching = false;
         this.isHolding = false;
+        this.isDoubleTapping = false;
     }
     return Gesture;
 };
@@ -83,8 +103,10 @@ Gesture.prototype.updateTouch = function( distance, duration ) {
 Gesture.SWIPE = 0;
 Gesture.TAP = 1;
 Gesture.HOLD = 2;
+Gesture.DOUBLETAP = 3;
 
 Gesture.TIMES = {
-    HOLD: 150,
-    SWIPE: 250
+    HOLD: 250,
+    SWIPE: 250,
+    DOUBLETAP: 300
 };
