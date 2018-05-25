@@ -39,8 +39,8 @@ Gesture.prototype.updateSwipe = function( distance, duration ) {
 
     //If we don't touch the screen for too long and change the position of the input during that touch
     else if ( !this.swipeDispatched && distance > /*150*/50 && duration > 100 && duration < Gesture.TIMES.SWIPE ) {
-        var positionDown = this.game.input.activePointer.positionDown;
-        this.onSwipe.dispatch( this, positionDown );
+        var positionUp = this.game.input.activePointer.positionUp;
+        this.onSwipe.dispatch( this, positionUp );
 
         this.swipeDispatched = true;
     }
@@ -48,14 +48,13 @@ Gesture.prototype.updateSwipe = function( distance, duration ) {
 
 //Handlers for Single Taps, Double Taps, and Holds
 Gesture.prototype.updateTouch = function( distance, duration ) {
-    var positionDown = this.game.input.activePointer.positionDown;
-    var timeBetweenTaps = this.game.input.doubleTapRate - this.game.input.activePointer.msSinceLastClick;
+    var positionUp = this.game.input.activePointer.positionUp;
 
     if ( duration === -1 ) {
         //Single Tap Handler
         //Record each tap as it happens
         if ( this.isTouching ) {
-            this.onTap.dispatch( this, positionDown );
+            this.onTap.dispatch( this, positionUp );
             this.taps++;
         }
 
@@ -65,7 +64,7 @@ Gesture.prototype.updateTouch = function( distance, duration ) {
         else if ( this.taps >= 2 && ( Gesture.TIMES.DOUBLETAP - this.game.input.activePointer.msSinceLastClick > 0 ) ) {
             this.taps = 0;
             this.isDoubleTapping = true;
-            this.onDoubleTap.dispatch( this, positionDown );
+            this.onDoubleTap.dispatch( this, positionUp );
         }
 
         this.isTouching = false;
@@ -87,7 +86,7 @@ Gesture.prototype.updateTouch = function( distance, duration ) {
             if ( !this.holdDispatched ) {
                 this.holdDispatched = true;
 
-                this.onHold.dispatch( this, positionDown );
+                this.onHold.dispatch( this, positionUp );
             }
         }
     } 

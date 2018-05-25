@@ -52,8 +52,8 @@ function create() {
     //Add and enable touch gestures
     this.game.gestures = new Gesture( this );    
 
-    this.game.gestures.onSwipe.add( this.game.player.swiped, this ),
-    this.game.gestures.onHold.add( this.game.player.held, this ),
+    this.game.gestures.onSwipe.add( this.game.player.swiped, this.game.player ),
+    this.game.gestures.onHold.add( this.game.player.held, this.game.player ),
     this.game.gestures.onDoubleTap.add( this.game.player.doubleTapped, this.game.player ),
 
     //create enemy group, set group children = Enemy
@@ -107,6 +107,8 @@ function update() {
     this.game.player.checkDeath(),
     this.game.player.stopSliding(),
     moveEnemies(),
+
+    console.log( "update", this.game.player.speed )
 
     //not functional, need some way to automate this
 

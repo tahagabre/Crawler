@@ -28,15 +28,31 @@ Enemy.prototype = Object.create( Phaser.Sprite.prototype );
 
 Enemy.prototype.constructor = Enemy;
 
+Enemy.prototype.getHealth = function() {
+	return this.health
+},
+
+Enemy.prototype.isAlive = function() {
+	return this.alive
+},
+
+Enemy.prototype.getSpeed = function() {
+	return this.speed
+},
+
+Enemy.prototype.setSpeed = function( newSpeed ) {
+	this.speed = newSpeed;
+},
+
 Enemy.prototype.move = function() {
 
 	if ( this.moveEnabled ) {
 		this.game.physics.arcade.moveToXY( this, this.game.player.x, this.game.player.y, this.speed );
 	}
 
-	if ( this.speed < 400 && this.lungeEnabled ) {
+	/*if ( this.speed < 400 && this.lungeEnabled ) {
 		this.game.time.events.add( 1000, this.lunge, this );
-	}
+	}*/
 
 	this.manageFacing();
 
@@ -52,13 +68,13 @@ Enemy.prototype.lunge = function() {
 
 Enemy.prototype.attack = function() {
 	this.game.player.takeDamage( 20 );
-	this.lungeEnabled = false;
-	this.moveEnabled = false;
+/*	this.lungeEnabled = false;
+	this.moveEnabled = false;*/
 	this.speed = 0;
-	this.body.velocity.x = 0;
-	this.body.velocity.y = 0;
+/*	this.body.velocity.x = 0;
+	this.body.velocity.y = 0;*/
 	this.game.player.knockBack();
-	this.resetLunge();
+	//this.resetLunge();
 },
 
 Enemy.prototype.resetLunge = function () {

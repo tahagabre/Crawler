@@ -13,12 +13,13 @@ export default function Player( game, x, y, spriteKey ) {
 	this.inputEnabled = true,
 	this.moveEnabled = true,
 	this.health = 100,
-	this.speed = 200,
+	this.speed = 400,
 	this.stunned = false,
 	this.immune = false,
 	this.alive = true,
 	this.tween = null,
-	this.swipeDistance = 50;
+	this.swipeEnabled = true,
+	this.holdEnabled = true,
 	this.attackEnabled = true,
 	this.doubleTapEnabled = true,
 	this.proxDiameter = 400,
@@ -26,7 +27,8 @@ export default function Player( game, x, y, spriteKey ) {
 	this.proximity = new Phaser.Circle( this.x, this.y, this.proxDiameter ),
 	this.doubleTapCircle = new Phaser.Circle( this.x, this.y, this.doubleTapDiameter ),
 	this.explosionCircle = new Phaser.Circle( this.x, this.y, this.doubleTapDiameter ),
-	this.isSwiping = false,
+	this.isDashing = false,
+	this.isBombing = false,
 	this.animations.add( spriteKey ),
 	this.animations.play( spriteKey, 10, true ),
 	game.add.existing( this )
@@ -35,6 +37,26 @@ export default function Player( game, x, y, spriteKey ) {
 Player.prototype = Object.create( Phaser.Sprite.prototype );
 
 Player.prototype.constructor = Player;
+
+Player.prototype.getSpeed = function() {
+	return this.speed
+},
+
+Player.prototype.setSpeed = function( newSpeed ) {
+	this.speed = newSpeed
+},
+
+Player.prototype.getHealth = function() {
+	return this.health
+},
+
+Player.prototype.setHealth = function( newHealth ) {
+	this.health = newHealth
+},
+
+Player.prototype.isAlive = function() {
+	return this.alive
+},
 
 Player.prototype.move = function() { //Update function
 	if ( this.moveEnabled ) {
@@ -105,8 +127,8 @@ Player.prototype.updateDoubleTapCircle = function() {
 
 //Gesture Callbacks
 Player.prototype.swiped = function() {
-	console.log( 'swiped', this )
-	//this.swipeAttack();
+	console.log( 'swiped' )
+	this.swipeAttack();
 },
 
 Player.prototype.held = function() {
@@ -124,52 +146,34 @@ Player.prototype.doubleTapped = function () {
 Player.prototype.bombAttack = function () {
 	for ( var i = 0; i < this.game.enemies.children.length; i++ ) {
 		if ( this.doubleTapCircle.contains( this.game.enemies.children[ i ].x, this.game.enemies.children[ i ].y ) ) {
-			this.game.enemies.children[ i ].speed *= -.5;
+			this.game.enemies.children[ i ].setSpeed( this.game.enemies.children[ i ].getSpeed() * -.5 );
 		}
 	}
 },
 
 Player.prototype.swipeAttack = function () {
-	/*console.log( 'swiped!' );
-	this.isSwiping = true;
-	this.moveEnabled = false;
-	this.speed = 800
+	if ( this.swipeEnabled ) {
 
-	if ( this.isSwiping ) {
-		if ( this.x > this.game.input.activePointer.x && this.y > this.game.input.activePointer.y ) {
-			this.body.velocity.x = -this.game.input.activePointer.x,
-			this.body.velocity.y = this.game.input.activePointer.y
-        }
+		var angleToPointer = this.game.physics.arcade.angleToPointer( this );
+		this.body.angle = angleToPointer;
+		this.speed += 300;
 
-        else if ( this.x < this.game.input.activePointer.x && this.y > this.game.input.activePointer.y ) {
-            this.body.velocity.x = this.game.input.activePointer.x,
-			this.body.velocity.y = this.game.input.activePointer.y
-        }
-
-        else if ( this.x > this.game.input.activePointer.x && this.y < this.game.input.activePointer.y ) {
-            //this.game.enemies.create( game.rnd.integerInRange( 0, this.game.player.x - 200 ), game.rnd.integerInRange( this.game.player.y, this.game.height ), 'enemy' );
-        }
-
-        else {
-            //this.game.enemies.create( game.rnd.integerInRange( this.game.player.x + 200, this.game.width ), game.rnd.integerInRange( this.game.player.y + 200, this.game.height ), 'enemy' );
-        }
-
-        this.manageFacing();
-
-		if ( this.body.onCollide ) { // OR DISTANCE HAS BEEN REACHED ) {
-			this.isSwiping = false;
-			this.moveEnabled = true;
-			this.speed = 200;
-			//this.game.enemy.knockBack()
-		}
-	}*/
-
-	console.log( this.body )
+		this.dashTimer = new Phaser.Timer( this.game, true );
+		this.dashTimer.add( 4000, this.resetSwipe(), this )
+		this.dashTimer.start();
+	}
 },
 
-/*Player.prototype.resetSpeed = function() {
-	this.speed = 200;
-},*/
+//After swipe finishes, reset speed and put cooldown on swipe
+Player.prototype.resetSwipe = function() {
+	console.log( "Queue knockBack" );
+	this.swipeEnabled = false;
+	this.speed -= 300;
+	console.log( "swipe speed\t", this.speed );
+	this.cooldownTimer = new Phaser.Timer( this.game, false );
+	this.cooldownTimer.add( 2000, function() { this.swipeEnabled = true }, this );
+	this.cooldownTimer.start()
+},
 
 Player.prototype.manageFacing = function() {
 	if ( this.game.input.activePointer.x < this.x ) {
