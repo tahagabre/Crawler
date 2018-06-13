@@ -96,7 +96,6 @@ Gesture.prototype.updateTouch = function( distance, duration ) {
         this.isHolding = false;
         this.isDoubleTapping = false;
     }
-    return Gesture;
 };
 
 Gesture.SWIPE = 0;
