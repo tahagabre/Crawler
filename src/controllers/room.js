@@ -1,12 +1,14 @@
 //room.js
 
 export default function Room( game, x, y, width, height ) {
-	//Phaser.TileSprite.call( this, game, x, y, width, height, key, frame );
 	this.game = game;
-	this.x = x;
-	this.y = y;
+	this.position = {
+		x : x,
+		y : y
+	};
 	this.width = width;
 	this.height = height;
+	this.game.physics.arcade.enable( this );
 	this.isBossRoom = false;
 	this.neighbors = {};
 	this.doors = [];

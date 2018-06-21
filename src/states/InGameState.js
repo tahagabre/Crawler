@@ -1,5 +1,6 @@
 //InGameState.js
 
+import Level from '../managers/level.js'
 import Player from '../controllers/Player.js'
 import Enemy from '../controllers/Enemy.js'
 import Gesture from '../managers/gesture.js'
@@ -22,24 +23,22 @@ InGameState.prototype.preload = function() {},
 
 InGameState.prototype.create = function() {
 
+    this.game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
 
-    this.game.scaleManager.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-    
     //Enable Physics on the world
     this.game.physics.startSystem( Phaser.Physics.ARCADE );
-    this.game.physics.arcade.setBoundsToWorld();
 
     //Camera
-    this.game.world.setBounds( 0, 0, 1600, 1200 );
-    var room = this.game.add.graphics( this.game.x, this.game.y );
-    room.lineStyle( 30, 0xff00ff, 1 );
-    room.drawRect( this.game.x, this.game.y, 1200, 1200 );
+    this.game.world.setBounds( 0, 0, 1600, 1600 );
+
+    this.game.physics.arcade.setBoundsToWorld();
 
     //Enable game input
     this.game.inputEnabled = true;
 
     //create player
     this.game.player = new Player( this.game, this.game.world.centerX, this.game.world.centerY + 400, 'player' );
+    this.game.test = new Enemy( this.game, this.game.player.x, this.game.player.y, 'enemy' );
 
     //Add and enable touch gestures
     this.game.gestures = new Gesture( this.game );    
@@ -82,11 +81,17 @@ InGameState.prototype.create = function() {
     console.log( "InGameState Successfully Loaded" )
 },
 
+InGameState.prototype.placeRooms = function() {
+  //Access this.game.rooms object and place rooms based on dimensions, coords, doors, chests, enemies, etc.
+},
+
 InGameState.prototype.update = function() {
     this.game.camera.x = this.game.player.x - 400,
     this.game.camera.y = this.game.player.y - 300,
     this.game.gestures.update(),
+    
     this.game.physics.arcade.collide( this.game.player, this.game.enemies )
+
 },
 
 InGameState.prototype.render = function() {

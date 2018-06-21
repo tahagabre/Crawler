@@ -1,7 +1,5 @@
 //Boot State
 
-import LevelManager from '../managers/level.js'
-
 var atlasToLoad = {
 	player: {
 		playerIdle: '../../assets/sheet_hero_idle.png', 
@@ -25,6 +23,9 @@ BootState.prototype = Object.create( Phaser.State.prototype );
 BootState.prototype.constructor = BootState;
 
 BootState.prototype.loadAnims = function() {
+
+	//test
+	//this.game.load.image( 'test', '../../assets/tiles.png' );
 
 	//Load player animations
 	for ( var key in atlasToLoad.player ) {
@@ -55,16 +56,9 @@ BootState.prototype.preload = function() {
 
 BootState.prototype.create = function() {
 
-	var levelManager = new LevelManager( this.game );
-	if ( levelManager ) {
-		console.log( 'LM instatiated' )
-		console.log( levelManager )
-		levelManager.createLevel();
-	}
-
 	console.log( "Game Booted Successfully" )
-
-	this.game.state.start( 'InGameState' );
+	//this.game.add.sprite( 200, 200, 'test' )
+	this.game.state.start( 'level' );
 },
 
 BootState.prototype.update = function() {}
