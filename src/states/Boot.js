@@ -22,10 +22,10 @@ BootState.prototype = Object.create( Phaser.State.prototype );
 
 BootState.prototype.constructor = BootState;
 
-BootState.prototype.loadAnims = function() {
+/*BootState.prototype.loadAnims = function() {
 
 	//test
-	//this.game.load.image( 'test', '../../assets/tiles.png' );
+	this.game.load.image( 'test', '../../assets/test.png' );
 
 	//Load player animations
 	for ( var key in atlasToLoad.player ) {
@@ -46,10 +46,14 @@ BootState.prototype.loadAnims = function() {
 			this.game.load.spritesheet( key, spritesheetsToLoad.enemy[ key ], 31, 30 )
 		}
 	}
-},
+},*/
 
 BootState.prototype.preload = function() {
     //this.loadAnims();
+
+	//test
+	this.game.load.image( 'test', '../../assets/test.png' );
+
     this.game.load.atlas( 'player', '../../assets/atlas/player.png', '../../assets/atlas/player.json' );
     this.game.load.atlas( 'enemy', '../../assets/atlas/enemy.png', '../../assets/atlas/enemy.json' );
 },
@@ -57,7 +61,6 @@ BootState.prototype.preload = function() {
 BootState.prototype.create = function() {
 
 	console.log( "Game Booted Successfully" )
-	//this.game.add.sprite( 200, 200, 'test' )
 	this.game.state.start( 'level' );
 },
 

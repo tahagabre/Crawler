@@ -38,7 +38,7 @@ InGameState.prototype.create = function() {
 
     //create player
     this.game.player = new Player( this.game, this.game.world.centerX, this.game.world.centerY + 400, 'player' );
-    this.game.test = new Enemy( this.game, this.game.player.x, this.game.player.y, 'enemy' );
+    //this.game.test = new Enemy( this.game, this.game.player.x, this.game.player.y, 'enemy' );
 
     //Add and enable touch gestures
     this.game.gestures = new Gesture( this.game );    

@@ -8,18 +8,16 @@ export default function Level( game ) {
 	this.roomLocations = [];
 	this.roomWidth = [];
 	this.roomHeight = [];
-	this.rooms = [];
 
-	//this.rooms = this.game.add.group();
-	//this.rooms.classType = Room;
-	//this.rooms.enableBody = true;
+	//this.rooms = [];
+	this.rooms;
 
 	this.levelCircle = new Phaser.Circle( this.game.width / 2, this.game.height / 2 );
 	this.roomPerLevel = 10;
 }
 
 Level.prototype.getRandomRadius = function() {
-	var levelRadius = this.game.rnd.between( 500, 900 );
+	var levelRadius = this.game.rnd.between( 1500, 2500 );
 	return levelRadius;
 },
 
@@ -46,29 +44,58 @@ Level.prototype.createLevel = function() {
 	this.populateArrays();
 
 	for ( var i = 0 ; i < this.roomPerLevel; i++ ) {
-		var room = new Room( this.game, this.roomLocations[ i ].x, this.roomLocations[ i ].y, this.roomWidth[ i ], this.roomHeight[ i ] );
-		this.rooms./*add*/push( room );
+		var room = this.game.add.tileSprite( this.roomLocations[i].x, this.roomLocations[i].y, this.roomWidth[i], this.roomWidth[i], 'test' ); /*new Room( this.game, this.roomLocations[ i ].x, this.roomLocations[ i ].y, this.roomWidth[ i ], this.roomHeight[ i ], 'player' );*/
+		this.game.physics.arcade.enable( room );
+		if ( this.game.physics.arcade.overlap( room, this.rooms ) ) {
+			if ( room.body.checkCollision.left ) {
+				room.x += room.x;
+			}
+
+			else if ( room.body.checkCollision.right ) {
+				room.x -= room.x
+			}
+
+			if ( room.body.checkCollision.up ) {
+				room.y += room.y
+			}
+
+			else if ( room.body.checkCollision.down ) {
+				room.y -= room.y
+			}
+		}
+		/*while ( this.game.physics.arcade.overlap( room, this.rooms ) ) {
+			this.separate( room );
+		}*/
+		this.rooms.add/*push*/( room );
 	}
 
-	console.log( this.rooms/*.children*/ )
+	console.log( this.rooms.children )
 },
 
 Level.prototype.displayLevel = function() {
 	
-	for ( var i = 0; i < this.rooms./*children.*/length; i++ ) {
-		var gfx = this.game.add.graphics( 0, 0 )
-		gfx.lineStyle( 15, 0xff00ff );
-		gfx.drawRect( this.rooms/*.children*/[ i ].position.x, this.rooms/*.children*/[ i ].position.y, this.rooms/*.children*/[ i ].position.width, this.rooms/*.children*/[ i ].position.height );
+	if ( !this.game.physics.arcade.overlap( this.rooms ) ) {
+		for ( var i = 0; i < this.rooms.children.length; i++ ) {
+			var gfx = this.game.add.graphics( 0, 0 )
+			gfx.lineStyle( 15, 0xff00ff );
+			gfx.drawRect( this.rooms.children[ i ].position.x, this.rooms.children[ i ].position.y, this.rooms.children[ i ].position.width, this.rooms.children[ i ].position.height );
+		}
 	}
 },
 
 Level.prototype.recordRoomData = function() {
 	var rooms = this.rooms;
 
-	/*for ( var i = 0; i <= )*/
+	for ( var i = 0; i <= rooms.length; i++ ) {
+
+	}
 },
 
-Level.prototype.separate = function() {
+Level.prototype.separate = function ( room ) {
+	
+},
+
+/*Level.prototype.separate = function() {
 	//For Convenince sake
 	var arcade = this.game.physics.arcade,
 		rooms = this.rooms;
@@ -81,9 +108,14 @@ Level.prototype.separate = function() {
 
 	//For testing purposes
 	this.displayLevel();
-},
+},*/
 
 Level.prototype.create = function() {
+
+	this.rooms = this.game.add.group();
+	this.rooms.classType = Room;
+	this.rooms.enableBody = true;
+
 	this.game.physics.arcade.enable( this.rooms );
 	this.game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
 
@@ -92,10 +124,12 @@ Level.prototype.create = function() {
 
 	console.log( "Level State Completed" );
 	//this.game.state.start( 'InGameState' );
+
 },
 
-Level.prototype.update = function() {
-	//this.separate();
+Level.prototype.update = function() {	
+	this.game.physics.arcade.collide( this.rooms.children/*, this.recordRoomData()*/ )
+	//this.displayLevel();
 }
 
 
